@@ -1,0 +1,14 @@
+*
+!ext
+!ext/**
+!src
+!src/**
+!.git*
+!*.yml
+!*Makefile
+!*.sublime-project
+!.clang-format
+!gh_rsa.enc
+!LICENSE
+!big-voronoi.md
+!README.md

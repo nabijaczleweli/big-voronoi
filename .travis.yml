@@ -1,0 +1,145 @@
+language: generic
+sudo: false
+cache:
+  apt: true
+  directories:
+    - /tmp/tools
+
+env:
+  global:
+    - LIB_INSTALLDIR="$HOME"
+    - PATH="$LIB_INSTALLDIR/bin:$PATH"
+    - LD_LIBRARY_PATH="$LIB_INSTALLDIR/lib"
+    - CMAKE_VERSION_PREFIX=3.5
+    - CMAKE_VERSION_FULL=3.5.2
+    - NINJA_VERSION=1.7.1
+
+matrix:
+  include:
+    - env: LANGUAGE=C++ CXX=g++-5 CC=gcc-5
+      addons:
+        apt:
+          packages:
+            - g++-5
+          sources: &sources
+            - r-packages-trusty
+            - llvm-toolchain-trusty
+            - llvm-toolchain-trusty-3.9
+            - llvm-toolchain-trusty-4.0
+            - llvm-toolchain-trusty-5.0
+            - llvm-toolchain-trusty-6.0
+            - ubuntu-toolchain-r-test
+    - env: LANGUAGE=C++ CXX=g++-6 CC=gcc-6 DEPLOY=true DEPLOY_FILE="$TRAVIS_BUILD_DIR/../big-voronoi-$TRAVIS_TAG"
+      addons:
+        apt:
+          packages:
+            - g++-6
+          sources: *sources
+    - env: LANGUAGE=C++ CXX=clang++-3.9 CC=clang-3.9
+      addons:
+        apt:
+          packages:
+            - clang-3.9
+          sources: *sources
+    - env: LANGUAGE=C++ CXX=clang++-4.0 CC=clang-4.0
+      addons:
+        apt:
+          packages:
+            - clang-4.0
+          sources: *sources
+    - env: LANGUAGE=C++ CXX=clang++-5.0 CC=clang-5.0
+      addons:
+        apt:
+          packages:
+            - clang-5.0
+          sources: *sources
+    - env: LANGUAGE=C++ CXX=clang++-6.0 CC=clang-6.0
+      addons:
+        apt:
+          packages:
+            - clang-6.0
+          sources: *sources
+    - env: LANGUAGE=Ruby DEPLOY=true DEPLOY_FILE="$TRAVIS_BUILD_DIR/../big-voronoi-man-$TRAVIS_TAG.tbz2"
+      language: ruby
+      rvm: "2.2"
+
+before_install:
+  - if [ "$TRAVIS_SECURE_ENV_VARS" == "true" ]; then
+      openssl aes-256-cbc -K $encrypted_ee8f59ba0064_key -iv $encrypted_ee8f59ba0064_iv -in gh_rsa.enc -out gh_rsa -d;
+    fi
+
+install:
+  - mkdir -p /tmp/tools
+  - pushd /tmp/tools
+  - if [[ "$LANGUAGE" == "C++" ]] && [[ ! -f "cmake-$CMAKE_VERSION_FULL-Linux-x86_64.sh" ]]; then
+      curl -SOL "https://cmake.org/files/v$CMAKE_VERSION_PREFIX/cmake-$CMAKE_VERSION_FULL-Linux-x86_64.sh";
+      chmod +x "cmake-$CMAKE_VERSION_FULL-Linux-x86_64.sh";
+    fi
+  - if [[ "$LANGUAGE" == "C++" ]]; then
+      ./"cmake-$CMAKE_VERSION_FULL-Linux-x86_64.sh" --prefix="$LIB_INSTALLDIR" --exclude-subdir --skip-license;
+    fi
+  - popd
+  -
+  - pushd /tmp/tools
+  - if [[ "$LANGUAGE" == "C++" ]] && [[ ! -f "ninja-$NINJA_VERSION.zip" ]]; then
+      curl -SLO "https://github.com/ninja-build/ninja/releases/download/v$NINJA_VERSION/ninja-linux.zip";
+      mv "ninja-linux.zip" "ninja-$NINJA_VERSION.zip";
+    fi
+  - if [[ "$LANGUAGE" == "C++" ]]; then
+      unzip "ninja-$NINJA_VERSION.zip" -d "$LIB_INSTALLDIR/bin";
+    fi
+  - popd
+
+script:
+  - if [[ "$LANGUAGE" == "C++" ]]; then
+      ADDITIONAL_INCLUDE_DIR="$LIB_INSTALLDIR/include" ADDITIONAL_LINK_DIR="$LIB_INSTALLDIR/lib" make -j$(nproc);
+    fi
+  -
+  - if [ "$LANGUAGE" == "Ruby" ]; then
+      mkdir man; pushd man;
+      cp ../big-voronoi.md .;
+      ronn --organization="nabijaczleweli" big-voronoi.md;
+      man -l big-voronoi.1 | cat;
+      popd;
+    fi
+
+after_success:
+  - if [ "$LANGUAGE" == "C++" ] && [ "$DEPLOY" ] && [ "$TRAVIS_TAG" ]; then
+      cp "out/big-voronoi" "$DEPLOY_FILE";
+      strip --strip-all --remove-section=.comment --remove-section=.note "$DEPLOY_FILE";
+    fi
+  - if [ "$LANGUAGE" == "Ruby" ] && [ "$TRAVIS_SECURE_ENV_VARS" == "true" ]; then
+      (
+        echo "Update manual for commits $TRAVIS_COMMIT_RANGE";
+        echo;
+        git log $TRAVIS_COMMIT_RANGE --pretty=oneline;
+      ) >> $TRAVIS_BUILD_DIR/../MAN_UPDATE_MSG;
+      mkdir -p ~/.ssh && cp gh_rsa ~/.ssh/id_rsa && chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_rsa;
+      git clone -b man git@github.com:$TRAVIS_REPO_SLUG.git $TRAVIS_BUILD_DIR-man;
+      cp -f man/* "$TRAVIS_BUILD_DIR-man";
+      pushd "$TRAVIS_BUILD_DIR-man";
+      git config --global user.email "nabijaczleweli@gmail.com";
+      git config --global user.name "Nabijaczleweli Autouploader Bot";
+      git config --global push.default simple;
+      git add *;
+      git commit -F $TRAVIS_BUILD_DIR/../MAN_UPDATE_MSG;
+      git push;
+      popd;
+    fi
+  - if [ "$LANGUAGE" == "Ruby" ] && [ "$TRAVIS_TAG" ]; then
+      cp -r man "$TRAVIS_BUILD_DIR/../big-voronoi-man-$TRAVIS_TAG";
+      pushd "$TRAVIS_BUILD_DIR/..";
+      tar -caf "big-voronoi-man-$TRAVIS_TAG.tbz2" "big-voronoi-man-$TRAVIS_TAG";
+      rm -rf "big-voronoi-man-$TRAVIS_TAG";
+      popd;
+    fi
+
+deploy:
+  provider: releases
+  api-key:
+    secure: uSD2yh3qYbclmqzdlkOeia6IEVgMAjH33djOleVlTV3glDzJY/s3x9J9XRVLcrF8pRXhYi4Qkuq+RqZSWZF7udylwrDlcziLIibWbtGaZMTeV6Zd4bu/HS3yhNINBTKJVEp+PTt8Xq9f/iarngabjlHLlA5NMzhJP1XZLJPkiQd9jca0E9DQjc+aIvFSn0H0r/brAcH2NmVBxOS08wLjK/bceegb30+dTFwlsJgEKB7x06/oxfhXPRs8D/Cj6l5ZAFlXY0w+kd4HOlZDIYqT0FCjII5lX4TPoi+91XBhMUHIDn3uGPl7t3m4UOV4jtXI0yjQG28KaH033XSnPLdRab2tZmcOrECLjhQVUkC/m1cOPNJcf/gXFQMz58RPF3y2eIgHJiB5//uyySjyWao3iwjCGD6rNATLGsiigVhUqr8fjf6iJtAkd9oHCl9yRiqanymuGOJlX9XwvXIjEx0BT7a9umu0VmuGQkhhwpJ7503Y8c6ywXYLkAm67wtWDLRwFxeuoITNrTEJQOJBTpFeuU5p5BKS9Y0NpDExeKKuSKXgAuuK6DDqkwK9mYcilMw1E0qXsWfzk4wwdLBTb7eVK4nX/BQBhX1g6QAcsNK/PrIuHRjDXhxkFq3mfQzxP52R9+h4TyCK1Bi8Ft8sRLdFjBoIEGkOdyIAjvIaHVOq+5w=
+  file: "big-voronoi-$TRAVIS_TAG.tbz2"
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: $DEPLOY = true
