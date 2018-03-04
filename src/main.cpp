@@ -20,9 +20,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+#include <SFML/System.hpp>
 #include <iostream>
 
 
 int main() {
 	std::cout << BIG_VORONOI_VERSION "\n";
+	std::cout << SFML_VERSION_MAJOR << '.' << SFML_VERSION_MINOR << '.' << SFML_VERSION_PATCH << '\n';
 }

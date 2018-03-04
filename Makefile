@@ -24,27 +24,34 @@ include configMakefile
 
 
 LDDLLS := $(OS_LD_LIBS)
-LDAR := $(LNCXXAR) $(foreach l, ,-L$(BLDDIR)$(l)) $(foreach dll,$(LDDLLS),-l$(dll))
-INCAR := $(foreach l,$(foreach l, ,$(l)/include),-isystemext/$(l)) $(foreach l, ,-isystem$(BLDDIR)$(l)/include)
+LDAR := $(LNCXXAR) $(foreach l,SFML/lib,-L$(BLDDIR)$(l)) $(foreach dll,$(LDDLLS),-l$(dll))
+INCAR := $(foreach l,$(foreach l, ,$(l)/include),-isystemext/$(l)) $(foreach l,SFML,-isystem$(BLDDIR)$(l)/include)
 VERAR := $(foreach l,BIG_VORONOI,-D$(l)_VERSION='$($(l)_VERSION)')
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
 HEADERS := $(sort $(wildcard src/*.hpp src/**/*.hpp src/**/**/*.hpp src/**/**/**/*.hpp))
 
-.PHONY : all clean exe
+.PHONY : all clean sfml exe
 
 
-all : exe
+all : sfml exe
 
 clean :
 	rm -rf $(OUTDIR)
 
-exe : $(OUTDIR)big-voronoi$(EXE)
+exe : sfml $(OUTDIR)big-voronoi$(EXE)
+sfml : $(BLDDIR)SFML/lib/libsfml-system-s$(ARCH)
 
 
 $(OUTDIR)big-voronoi$(EXE) : $(subst $(SRCDIR),$(OBJDIR),$(subst .cpp,$(OBJ),$(SOURCES)))
 	$(CXX) $(CXXAR) -o$@ $^ $(PIC) $(LDAR) $(shell grep '<SFML/' $(HEADERS) $(SOURCES) | sed -r 's:.*#include <SFML/(.*).hpp>:-lsfml-\1$(SFML_LINK_SUFF):' | tr '[:upper:]' '[:lower:]' | sort | uniq)
 # '
 
+$(BLDDIR)SFML/lib/libsfml-system-s$(ARCH) : ext/SFML/CMakeLists.txt
+	@mkdir -p $(abspath $(dir $@)../build)
+	cd $(abspath $(dir $@)../build) && $(INCCMAKEAR) $(LNCMAKEAR) $(CMAKE) -DBUILD_SHARED_LIBS=FALSE -DCMAKE_INSTALL_PREFIX:PATH="$(abspath $(dir $@)..)" $(abspath $(dir $^)) -GNinja
+	cd $(abspath $(dir $@)../build) && $(NINJA) install
+
+
 $(OBJDIR)%$(OBJ) : $(SRCDIR)%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXAR) $(INCAR) $(VERAR) -c -o$@ $^
+	$(CXX) $(CXXAR) $(INCAR) $(VERAR) -DSFML_STATIC -c -o$@ $^
