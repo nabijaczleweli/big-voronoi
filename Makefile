@@ -25,8 +25,8 @@ include configMakefile
 
 LDDLLS := $(OS_LD_LIBS)
 LDAR := $(LNCXXAR) $(foreach l,SFML/lib,-L$(BLDDIR)$(l)) $(foreach dll,$(LDDLLS),-l$(dll))
-INCAR := $(foreach l,$(foreach l, ,$(l)/include),-isystemext/$(l)) $(foreach l,SFML,-isystem$(BLDDIR)$(l)/include)
-VERAR := $(foreach l,BIG_VORONOI,-D$(l)_VERSION='$($(l)_VERSION)')
+INCAR := $(foreach l,$(foreach l,TCLAP,$(l)/include),-isystemext/$(l)) $(foreach l,SFML,-isystem$(BLDDIR)$(l)/include)
+VERAR := $(foreach l,BIG_VORONOI TCLAP,-D$(l)_VERSION='$($(l)_VERSION)')
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
 HEADERS := $(sort $(wildcard src/*.hpp src/**/*.hpp src/**/**/*.hpp src/**/**/**/*.hpp))
 

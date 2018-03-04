@@ -2,3 +2,6 @@
 	path = ext/SFML
 	url = https://github.com/SFML/SFML
 	branch = 2.4.2
+[submodule "ext/TCLAP"]
+	path = ext/TCLAP
+	url = git://git.code.sf.net/p/tclap/code
