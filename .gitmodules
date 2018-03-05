@@ -5,3 +5,7 @@
 [submodule "ext/TCLAP"]
 	path = ext/TCLAP
 	url = git://git.code.sf.net/p/tclap/code
+[submodule "ext/optional-lite"]
+	path = ext/optional-lite
+	url = https://github.com/martinmoene/optional-lite
+	branch = v2.3.0
