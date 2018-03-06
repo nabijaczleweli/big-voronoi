@@ -20,18 +20,25 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#include "options/options.hpp"
-#include <iostream>
+#include <cstdint>
+#include <nonstd/optional.hpp>
+#include <string>
+#include <tuple>
 
 
-int main(int argc, const char ** argv) {
-	const auto opts_r = big_voronoi::options::parse(argc, argv);
-	if(const auto error_val = nonstd::get_if<big_voronoi::option_err>(&opts_r)) {
-		std::cerr << error_val->second << '\n';
-		return error_val->first;
-	}
-	const auto opts = std::move(nonstd::get<big_voronoi::options>(opts_r));
+namespace big_voronoi {
+	using point_3d = std::tuple<std::size_t, std::size_t, std::size_t>;
 
-	std::cout << "Generating a " << std::get<0>(opts.size) << 'x' << std::get<1>(opts.size) << 'x' << std::get<2>(opts.size) << " voronoi diagram on "
-	          << opts.jobs << " threads to " << (opts.out_directory.empty() ? "./" : opts.out_directory.c_str()) << '\n';
+
+	/// Parse a string on the format `"D+xD+xD+"` where `D` is a digit.
+	///
+	/// Returns `nullopt` if the parsing failed.
+	nonstd::optional<point_3d> parse_size_option(const char * opt);
+	nonstd::optional<point_3d> parse_size_option(const std::string & opt);
+
+	/// Check if the file specified by the path exists and is a directory.
+	bool directory_exists(const char * path);
+	bool directory_exists(const std::string & path);
+
+	std::size_t num_cpus();
 }

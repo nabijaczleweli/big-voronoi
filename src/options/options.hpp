@@ -20,18 +20,43 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#include "options/options.hpp"
-#include <iostream>
+#pragma once
 
 
-int main(int argc, const char ** argv) {
-	const auto opts_r = big_voronoi::options::parse(argc, argv);
-	if(const auto error_val = nonstd::get_if<big_voronoi::option_err>(&opts_r)) {
-		std::cerr << error_val->second << '\n';
-		return error_val->first;
-	}
-	const auto opts = std::move(nonstd::get<big_voronoi::options>(opts_r));
+#include "../util.hpp"
+#include <nonstd/variant.hpp>
+#include <utility>
 
-	std::cout << "Generating a " << std::get<0>(opts.size) << 'x' << std::get<1>(opts.size) << 'x' << std::get<2>(opts.size) << " voronoi diagram on "
-	          << opts.jobs << " threads to " << (opts.out_directory.empty() ? "./" : opts.out_directory.c_str()) << '\n';
+
+namespace big_voronoi {
+	using option_err = std::pair<int, std::string>;
+
+	/// Representation of command-line configurable application parameters.
+	struct options {
+		/// The output size of the voronoi diagram.
+		point_3d size;
+
+		/// Path to the directory to write the result files to.
+		///
+		/// Must exist.
+		///
+		/// Default: current directory.
+		std::string out_directory;
+
+		/// Amount of threads to use for generation.
+		///
+		/// Default: however many threads were detected on the system.
+		std::size_t jobs;
+
+
+		/// Attempt to parse command-line arguments.
+		///
+		/// On success, returns `{parsed_opts, 0, whatever}`.
+		///
+		/// On error, returns `{_invalid_, exit code != 0, error message}`.
+		static nonstd::variant<options, option_err> parse(int argc, const char * const * argv);
+	};
+
+	bool operator==(const options & lhs, const options & rhs);
+	bool operator!=(const options & lhs, const options & rhs);
 }
