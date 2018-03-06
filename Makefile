@@ -25,21 +25,22 @@ include configMakefile
 
 LDDLLS := $(OS_LD_LIBS)
 LDAR := $(LNCXXAR) $(foreach l,SFML/lib,-L$(BLDDIR)$(l)) $(foreach dll,$(LDDLLS),-l$(dll))
-INCAR := $(foreach l,$(foreach l,optional-lite TCLAP,$(l)/include),-isystemext/$(l)) $(foreach l,SFML,-isystem$(BLDDIR)$(l)/include)
+INCAR := $(foreach l,$(foreach l,optional-lite TCLAP,$(l)/include),-isystemext/$(l)) $(foreach l,SFML variant-lite,-isystem$(BLDDIR)$(l)/include)
 VERAR := $(foreach l,BIG_VORONOI TCLAP,-D$(l)_VERSION='$($(l)_VERSION)')
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
 HEADERS := $(sort $(wildcard src/*.hpp src/**/*.hpp src/**/**/*.hpp src/**/**/**/*.hpp))
 
-.PHONY : all clean sfml exe
+.PHONY : all clean sfml variant-lite exe
 
 
-all : sfml exe
+all : sfml variant-lite exe
 
 clean :
 	rm -rf $(OUTDIR)
 
 exe : sfml $(OUTDIR)big-voronoi$(EXE)
 sfml : $(BLDDIR)SFML/lib/libsfml-system-s$(ARCH)
+variant-lite : $(BLDDIR)variant-lite/include/nonstd/variant.hpp
 
 
 $(OUTDIR)big-voronoi$(EXE) : $(subst $(SRCDIR),$(OBJDIR),$(subst .cpp,$(OBJ),$(SOURCES)))
@@ -50,6 +51,10 @@ $(BLDDIR)SFML/lib/libsfml-system-s$(ARCH) : ext/SFML/CMakeLists.txt
 	@mkdir -p $(abspath $(dir $@)../build)
 	cd $(abspath $(dir $@)../build) && $(INCCMAKEAR) $(LNCMAKEAR) $(CMAKE) -DBUILD_SHARED_LIBS=FALSE -DCMAKE_INSTALL_PREFIX:PATH="$(abspath $(dir $@)..)" $(abspath $(dir $^)) -GNinja
 	cd $(abspath $(dir $@)../build) && $(NINJA) install
+
+$(BLDDIR)variant-lite/include/nonstd/variant.hpp : ext/variant-lite/include/nonstd/variant.hpp
+	@mkdir -p $(dir $@)
+	cp $^ $@
 
 
 $(OBJDIR)%$(OBJ) : $(SRCDIR)%.cpp

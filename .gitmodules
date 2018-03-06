@@ -9,3 +9,6 @@
 	path = ext/optional-lite
 	url = https://github.com/martinmoene/optional-lite
 	branch = v2.3.0
+[submodule "ext/variant-lite"]
+	path = ext/variant-lite
+	url = https://github.com/martinmoene/variant-lite
