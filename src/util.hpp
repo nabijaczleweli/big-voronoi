@@ -20,6 +20,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+#pragma once
+
+
 #include <cstdint>
 #include <nonstd/optional.hpp>
 #include <string>
@@ -40,5 +43,15 @@ namespace big_voronoi {
 	bool directory_exists(const char * path);
 	bool directory_exists(const std::string & path);
 
+	/// Get the amount of logical processors.
 	std::size_t num_cpus();
+
+	/// Separate number with the specified separator.
+	///
+	/// Examples:
+	///
+	/// ```
+	/// assert_eq!(separated_number(1234567890), "1'234'567'890");
+	/// ```
+	std::string separated_number(std::size_t num, char separator = '\'');
 }

@@ -21,7 +21,11 @@
 
 
 #include "options/options.hpp"
+#include "util.hpp"
+#include <SFML/Graphics.hpp>
+#include <algorithm>
 #include <iostream>
+#include <vector>
 
 
 int main(int argc, const char ** argv) {
@@ -32,6 +36,13 @@ int main(int argc, const char ** argv) {
 	}
 	const auto opts = std::move(nonstd::get<big_voronoi::options>(opts_r));
 
-	std::cout << "Generating a " << std::get<0>(opts.size) << 'x' << std::get<1>(opts.size) << 'x' << std::get<2>(opts.size) << " voronoi diagram on "
-	          << opts.jobs << " threads to " << (opts.out_directory.empty() ? "./" : opts.out_directory.c_str()) << '\n';
+	std::cout << "Allocating " << big_voronoi::separated_number(std::get<0>(opts.size) * std::get<1>(opts.size) * std::get<2>(opts.size) * 4 / 1024)
+	          << "KiB of images..." << std::flush;
+
+	std::vector<sf::Image> images{std::get<2>(opts.size)};
+	for(auto && img : images)
+		img.create(std::get<0>(opts.size), std::get<1>(opts.size));
+
+	std::cout << " Done!\n";
+
 }

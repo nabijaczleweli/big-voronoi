@@ -50,6 +50,15 @@ bool big_voronoi::directory_exists(const std::string & path) {
 	return directory_exists(path.c_str());
 }
 
+std::string big_voronoi::separated_number(std::size_t num, char separator) {
+	auto ss = std::to_string(num);
+	std::reverse(std::begin(ss), std::end(ss));
+	for(std::size_t i = 3; i < ss.size(); i += 4)
+		ss.insert(i, 1, separator);
+	std::reverse(std::begin(ss), std::end(ss));
+	return ss;
+}
+
 
 #ifdef _WIN32
 
