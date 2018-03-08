@@ -12,3 +12,7 @@
 [submodule "ext/variant-lite"]
 	path = ext/variant-lite
 	url = https://github.com/martinmoene/variant-lite
+[submodule "ext/pb-cpp"]
+	path = ext/pb-cpp
+	url = https://github.com/nabijaczleweli/pb-cpp
+	branch = v0.1.0.1
