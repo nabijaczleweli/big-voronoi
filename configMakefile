@@ -24,14 +24,13 @@ ifeq "$(OS)" "Windows_NT"
 	EXE := .exe
 	DLL := .dll
 	PIC :=
-	SFML_LINK_SUFF ?= -2
+	SFML_LINK_SUFF ?= -s
 	SEED11_SYSTEM_TYPE := windows
-	OS_LD_LIBS :=
 else
 	EXE := .out
 	DLL := .so
 	PIC := -fPIC
-	SFML_LINK_SUFF ?=
+	SFML_LINK_SUFF ?= -s
 	SEED11_SYSTEM_TYPE := unix
 endif
 

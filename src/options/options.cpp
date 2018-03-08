@@ -24,12 +24,10 @@
 #include "existing_dir_constraint.hpp"
 #include "output_size_constraint.hpp"
 #include "positive_constraint.hpp"
+#include <string>
 #include <tclap/CmdLine.h>
 #include <tclap/SwitchArg.h>
 #include <tclap/ValueArg.h>
-
-
-using namespace std::literals;
 
 
 nonstd::variant<big_voronoi::options, big_voronoi::option_err> big_voronoi::options::parse(int argc, const char * const * argv) {
@@ -68,7 +66,7 @@ nonstd::variant<big_voronoi::options, big_voronoi::option_err> big_voronoi::opti
 			arg_id = "undefined argument";
 		return std::make_pair(1, std::string(argv[0]) + ": error: parsing arguments failed (" + e.error() + ") for " + arg_id);
 	} catch(const TCLAP::ExitException & e) {
-		return std::make_pair(e.getExitStatus() ? e.getExitStatus() : 1, ""s);
+		return std::make_pair(e.getExitStatus() ? e.getExitStatus() : 1, std::string{});
 	}
 
 	return std::move(ret);

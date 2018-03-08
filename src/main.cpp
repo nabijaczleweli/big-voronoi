@@ -23,6 +23,7 @@
 #include "options/options.hpp"
 #include "util.hpp"
 #include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -44,5 +45,4 @@ int main(int argc, const char ** argv) {
 		img.create(std::get<0>(opts.size), std::get<1>(opts.size));
 
 	std::cout << " Done!\n";
-
 }

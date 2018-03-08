@@ -23,9 +23,9 @@
 include configMakefile
 
 
-LDDLLS := $(OS_LD_LIBS) pb-cpp
+LDDLLS := $(OS_LD_LIBS) jpeg pb-cpp
 LDAR := $(LNCXXAR) $(foreach l,pb-cpp SFML/lib,-L$(BLDDIR)$(l)) $(foreach dll,$(LDDLLS),-l$(dll))
-INCAR := $(foreach l,$(foreach l,optional-lite pb-cpp TCLAP,$(l)/include),-isystemext/$(l)) $(foreach l,SFML variant-lite,-isystem$(BLDDIR)$(l)/include)
+INCAR := $(foreach l,$(foreach l,optional-lite pb-cpp SFML TCLAP,$(l)/include),-isystemext/$(l)) $(foreach l,variant-lite,-isystem$(BLDDIR)$(l)/include)
 VERAR := $(foreach l,BIG_VORONOI PB_CPP TCLAP,-D$(l)_VERSION='$($(l)_VERSION)')
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
 HEADERS := $(sort $(wildcard src/*.hpp src/**/*.hpp src/**/**/*.hpp src/**/**/**/*.hpp))
@@ -40,22 +40,22 @@ clean :
 
 exe : pb-cpp sfml variant-lite $(OUTDIR)big-voronoi$(EXE)
 pb-cpp : $(BLDDIR)pb-cpp/libpb-cpp$(ARCH)
-sfml : $(BLDDIR)SFML/lib/libsfml-system-s$(ARCH)
+sfml : $(BLDDIR)SFML/lib/libsfml-graphics-s$(ARCH)
 variant-lite : $(BLDDIR)variant-lite/include/nonstd/variant.hpp
 
 
 $(OUTDIR)big-voronoi$(EXE) : $(subst $(SRCDIR),$(OBJDIR),$(subst .cpp,$(OBJ),$(SOURCES)))
-	$(CXX) $(CXXAR) -o$@ $^ $(PIC) $(LDAR) $(shell grep '<SFML/' $(HEADERS) $(SOURCES) | sed -r 's:.*#include <SFML/(.*).hpp>:-lsfml-\1$(SFML_LINK_SUFF):' | tr '[:upper:]' '[:lower:]' | sort | uniq)
+	$(CXX) $(CXXAR) -o$@ $^ $(PIC) $(LDAR) $(shell grep '<SFML/' $(HEADERS) $(SOURCES) | sed -r 's:.*#include <SFML/(.*).hpp>:-lsfml-\1$(SFML_LINK_SUFF):' | tr '[:upper:]' '[:lower:]' | sort | uniq) $(LDAR)
 # '
 
 $(BLDDIR)pb-cpp/libpb-cpp$(ARCH) : ext/pb-cpp/Makefile
 	@mkdir -p $(dir $@)
 	$(MAKE) -C "$(dir $^)" static OUTDIR="$(abspath $(dir $@))/"
 
-$(BLDDIR)SFML/lib/libsfml-system-s$(ARCH) : ext/SFML/CMakeLists.txt
+$(BLDDIR)SFML/lib/libsfml-graphics-s$(ARCH) : ext/SFML/CMakeLists.txt
 	@mkdir -p $(abspath $(dir $@)../build)
-	cd $(abspath $(dir $@)../build) && $(INCCMAKEAR) $(LNCMAKEAR) $(CMAKE) -DBUILD_SHARED_LIBS=FALSE -DCMAKE_INSTALL_PREFIX:PATH="$(abspath $(dir $@)..)" $(abspath $(dir $^)) -GNinja
-	cd $(abspath $(dir $@)../build) && $(NINJA) install
+	cd $(abspath $(dir $@)..) && $(INCCMAKEAR) $(LNCMAKEAR) $(CMAKE) -DBUILD_SHARED_LIBS=FALSE $(abspath $(dir $^)) -GNinja
+	cd $(abspath $(dir $@)..) && $(NINJA) $(notdir $@)
 
 $(BLDDIR)variant-lite/include/nonstd/variant.hpp : ext/variant-lite/include/nonstd/variant.hpp
 	@mkdir -p $(dir $@)

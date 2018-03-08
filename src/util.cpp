@@ -32,7 +32,8 @@ static std::regex parse_size_regex{"([[:digit:]]+)x([[:digit:]]+)x([[:digit:]]+)
 nonstd::optional<big_voronoi::point_3d> big_voronoi::parse_size_option(const char * opt) {
 	std::cmatch match;
 	if(std::regex_match(opt, match, parse_size_regex))
-		return std::make_tuple(std::stoull(match[1].str()), std::stoull(match[2].str()), std::stoull(match[3].str()));
+		return std::make_tuple(static_cast<std::size_t>(std::stoull(match[1].str())), static_cast<std::size_t>(std::stoull(match[2].str())),
+		                       static_cast<std::size_t>(std::stoull(match[3].str())));
 	else
 		return nonstd::nullopt;
 }

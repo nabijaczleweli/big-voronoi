@@ -21,10 +21,24 @@ matrix:
         apt:
           packages:
             - g++-5
+            - unzip
+            - libpthread-stubs0-dev
+            - libgl1-mesa-dev
+            - libx11-dev
+            - libxrandr-dev
+            - libfreetype6-dev
+            - libglew-dev
+            - libjpeg8-dev
+            - libsndfile1-dev
+            - libflac-dev
+            - libopenal-dev
+            - libudev-dev
+            - libx11-xcb-dev
+            - libxcb-image0-dev
+            - libxcb-randr0-dev
           sources: &sources
             - r-packages-trusty
             - llvm-toolchain-trusty
-            - llvm-toolchain-trusty-3.9
             - llvm-toolchain-trusty-4.0
             - llvm-toolchain-trusty-5.0
             - llvm-toolchain-trusty-6.0
@@ -34,30 +48,84 @@ matrix:
         apt:
           packages:
             - g++-6
-          sources: *sources
-    - env: LANGUAGE=C++ CXX=clang++-3.9 CC=clang-3.9
-      addons:
-        apt:
-          packages:
-            - clang-3.9
+            - unzip
+            - libpthread-stubs0-dev
+            - libgl1-mesa-dev
+            - libx11-dev
+            - libxrandr-dev
+            - libfreetype6-dev
+            - libglew-dev
+            - libjpeg8-dev
+            - libsndfile1-dev
+            - libflac-dev
+            - libopenal-dev
+            - libudev-dev
+            - libx11-xcb-dev
+            - libxcb-image0-dev
+            - libxcb-randr0-dev
           sources: *sources
     - env: LANGUAGE=C++ CXX=clang++-4.0 CC=clang-4.0
       addons:
         apt:
           packages:
             - clang-4.0
+            - unzip
+            - libpthread-stubs0-dev
+            - libgl1-mesa-dev
+            - libx11-dev
+            - libxrandr-dev
+            - libfreetype6-dev
+            - libglew-dev
+            - libjpeg8-dev
+            - libsndfile1-dev
+            - libflac-dev
+            - libopenal-dev
+            - libudev-dev
+            - libx11-xcb-dev
+            - libxcb-image0-dev
+            - libxcb-randr0-dev
           sources: *sources
     - env: LANGUAGE=C++ CXX=clang++-5.0 CC=clang-5.0
       addons:
         apt:
           packages:
             - clang-5.0
+            - unzip
+            - libpthread-stubs0-dev
+            - libgl1-mesa-dev
+            - libx11-dev
+            - libxrandr-dev
+            - libfreetype6-dev
+            - libglew-dev
+            - libjpeg8-dev
+            - libsndfile1-dev
+            - libflac-dev
+            - libopenal-dev
+            - libudev-dev
+            - libx11-xcb-dev
+            - libxcb-image0-dev
+            - libxcb-randr0-dev
           sources: *sources
     - env: LANGUAGE=C++ CXX=clang++-6.0 CC=clang-6.0
       addons:
         apt:
           packages:
             - clang-6.0
+            - unzip
+            - libpthread-stubs0-dev
+            - libgl1-mesa-dev
+            - libx11-dev
+            - libxrandr-dev
+            - libfreetype6-dev
+            - libglew-dev
+            - libjpeg8-dev
+            - libsndfile1-dev
+            - libflac-dev
+            - libopenal-dev
+            - libudev-dev
+            - libx11-xcb-dev
+            - libxcb-image0-dev
+            - libxcb-randr0-dev
           sources: *sources
     - env: LANGUAGE=Ruby DEPLOY=true DEPLOY_FILE="$TRAVIS_BUILD_DIR/../big-voronoi-man-$TRAVIS_TAG.tbz2"
       language: ruby
