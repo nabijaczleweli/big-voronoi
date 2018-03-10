@@ -23,23 +23,24 @@
 include configMakefile
 
 
-LDDLLS := $(OS_LD_LIBS) jpeg pb-cpp
-LDAR := $(LNCXXAR) $(foreach l,pb-cpp SFML/lib,-L$(BLDDIR)$(l)) $(foreach dll,$(LDDLLS),-l$(dll))
-INCAR := $(foreach l,$(foreach l,optional-lite pb-cpp SFML TCLAP,$(l)/include),-isystemext/$(l)) $(foreach l,variant-lite,-isystem$(BLDDIR)$(l)/include)
-VERAR := $(foreach l,BIG_VORONOI PB_CPP TCLAP,-D$(l)_VERSION='$($(l)_VERSION)')
+LDDLLS := $(OS_LD_LIBS) jpeg pb-cpp seed11
+LDAR := $(LNCXXAR) $(foreach l,pb-cpp seed11 SFML/lib,-L$(BLDDIR)$(l)) $(foreach dll,$(LDDLLS),-l$(dll))
+INCAR := $(foreach l,$(foreach l,optional-lite pb-cpp seed11 SFML TCLAP,$(l)/include),-isystemext/$(l)) $(foreach l,variant-lite,-isystem$(BLDDIR)$(l)/include)
+VERAR := $(foreach l,BIG_VORONOI PB_CPP SEED11 TCLAP,-D$(l)_VERSION='$($(l)_VERSION)')
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
 HEADERS := $(sort $(wildcard src/*.hpp src/**/*.hpp src/**/**/*.hpp src/**/**/**/*.hpp))
 
-.PHONY : all clean sfml variant-lite exe
+.PHONY : all clean pb-cpp seed11 sfml variant-lite exe
 
 
-all : sfml variant-lite exe
+all : pb-cpp seed11 sfml variant-lite exe
 
 clean :
 	rm -rf $(OUTDIR)
 
 exe : pb-cpp sfml variant-lite $(OUTDIR)big-voronoi$(EXE)
 pb-cpp : $(BLDDIR)pb-cpp/libpb-cpp$(ARCH)
+seed11 : $(BLDDIR)seed11/libseed11$(ARCH)
 sfml : $(BLDDIR)SFML/lib/libsfml-graphics-s$(ARCH)
 variant-lite : $(BLDDIR)variant-lite/include/nonstd/variant.hpp
 
@@ -51,6 +52,9 @@ $(OUTDIR)big-voronoi$(EXE) : $(subst $(SRCDIR),$(OBJDIR),$(subst .cpp,$(OBJ),$(S
 $(BLDDIR)pb-cpp/libpb-cpp$(ARCH) : ext/pb-cpp/Makefile
 	@mkdir -p $(dir $@)
 	$(MAKE) -C "$(dir $^)" static OUTDIR="$(abspath $(dir $@))/"
+
+$(BLDDIR)seed11/libseed11$(ARCH) : $(foreach src,seed11_system_agnostic seed11_$(SEED11_SYSTEM_TYPE) deterministic_unsafe_seed_device,$(BLDDIR)seed11/obj/$(src)$(OBJ))
+	$(AR) crs $@ $^
 
 $(BLDDIR)SFML/lib/libsfml-graphics-s$(ARCH) : ext/SFML/CMakeLists.txt
 	@mkdir -p $(abspath $(dir $@)../build)
@@ -65,3 +69,7 @@ $(BLDDIR)variant-lite/include/nonstd/variant.hpp : ext/variant-lite/include/nons
 $(OBJDIR)%$(OBJ) : $(SRCDIR)%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXAR) $(INCAR) $(VERAR) -DSFML_STATIC -c -o$@ $^
+
+$(BLDDIR)seed11/obj/%$(OBJ) : ext/seed11/src/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXAR) -isystemext/seed11/include -c -o$@ $^

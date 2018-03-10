@@ -33,7 +33,15 @@ namespace big_voronoi {
 	using job_signature = void (*)(point_3d size, sf::Image * where, std::size_t how_many, std::size_t thread_idx, pb::progressbar progress);
 
 	extern const std::chrono::milliseconds progressbar_max_refresh_rate;
+	extern const std::vector<point_3d> default_colourset;
 
+
+	struct job_context {
+		point_3d size;
+	};
+
+
+	std::vector<point_3d> generate_points(std::size_t how_many);
 
 	void run_jobs(job_signature job, const std::string & job_name, const point_3d & size, std::size_t jobs, sf::Image * images, pb::multibar & progresses);
 	void run_jobs(job_signature job, const char * job_name, const point_3d & size, std::size_t jobs, sf::Image * images, pb::multibar & progresses);

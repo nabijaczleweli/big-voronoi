@@ -16,3 +16,7 @@
 	path = ext/pb-cpp
 	url = https://github.com/nabijaczleweli/pb-cpp
 	branch = v0.1.2
+[submodule "ext/seed11"]
+	path = ext/seed11
+	url = https://github.com/milleniumbug/seed11
+	branch = v1.0.2

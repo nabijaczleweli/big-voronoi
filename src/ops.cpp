@@ -31,6 +31,8 @@ using namespace std::literals;
 
 const std::chrono::milliseconds big_voronoi::progressbar_max_refresh_rate = 100ms;
 
+const std::vector<point_3d> default_colourset{};
+
 
 void big_voronoi::run_jobs(job_signature job, const std::string & job_name, const point_3d & size, std::size_t jobs, sf::Image * images,
                            pb::multibar & progresses) {
