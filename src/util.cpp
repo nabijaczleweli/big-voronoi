@@ -21,6 +21,7 @@
 
 
 #include "util.hpp"
+#include <cctype>
 #include <regex>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -58,6 +59,23 @@ std::string big_voronoi::separated_number(std::size_t num, char separator) {
 		ss.insert(i, 1, separator);
 	std::reverse(std::begin(ss), std::end(ss));
 	return ss;
+}
+
+std::string & big_voronoi::capitalise_first(std::string & in_whom) {
+	in_whom[0] = std::toupper(in_whom[0]);
+	return in_whom;
+}
+
+std::string big_voronoi::capitalise_first(const std::string & in_whom) {
+	std::string out = in_whom;
+	capitalise_first(out);
+	return out;
+}
+
+std::string big_voronoi::capitalise_first(std::string && in_whom) {
+	std::string out = std::move(in_whom);
+	capitalise_first(out);
+	return out;
 }
 
 

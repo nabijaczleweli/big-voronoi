@@ -54,4 +54,9 @@ namespace big_voronoi {
 	/// assert_eq!(separated_number(1234567890), "1'234'567'890");
 	/// ```
 	std::string separated_number(std::size_t num, char separator = '\'');
+
+	/// Capitalise the first character of the specified string.
+	std::string & capitalise_first(std::string & in_whom);
+	std::string capitalise_first(const std::string & in_whom);
+	std::string capitalise_first(std::string && in_whom);
 }

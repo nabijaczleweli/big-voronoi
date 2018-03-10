@@ -20,6 +20,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+#include "ops.hpp"
 #include "options/options.hpp"
 #include "util.hpp"
 #include <SFML/Graphics.hpp>
@@ -44,5 +45,20 @@ int main(int argc, const char ** argv) {
 	for(auto && img : images)
 		img.create(std::get<0>(opts.size), std::get<1>(opts.size));
 
-	std::cout << " Done!\n";
+	std::cout << " Done!\n\n";
+
+
+	pb::multibar progresses;
+	progresses.println("A " + std::to_string(std::get<0>(opts.size)) + "x" + std::to_string(std::get<1>(opts.size)) + "x" +
+	                   std::to_string(std::get<2>(opts.size)) + " mandala on " + std::to_string(opts.jobs) + " thread" + (opts.jobs == 1 ? "" : "s") + ".");
+
+	big_voronoi::run_jobs(big_voronoi::colour_layers_job, "generation", opts.size, opts.jobs, images.data(), progresses);
+
+	pb::progressbar progress(images.size());
+	progress.message("Saving into " + (opts.out_directory.empty() ? std::string{"./"} : opts.out_directory) + ": ");
+
+	for(std::size_t i = 0; i < images.size(); ++i) {
+		images[i].saveToFile(opts.out_directory + big_voronoi::filename_to_save(opts.size, i));
+		++progress;
+	}
 }

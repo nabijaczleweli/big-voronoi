@@ -23,42 +23,23 @@
 #pragma once
 
 
-#include "../util.hpp"
+#include "util.hpp"
+#include <SFML/Graphics.hpp>
 #include <nonstd/variant.hpp>
-#include <utility>
+#include <pb-cpp/multibar.hpp>
 
 
 namespace big_voronoi {
-	using option_err = std::pair<int, std::string>;
+	using job_signature = void (*)(point_3d size, sf::Image * where, std::size_t how_many, std::size_t thread_idx, pb::progressbar progress);
 
-	/// Representation of command-line configurable application parameters.
-	struct options {
-		/// The output size of the voronoi diagram.
-		point_3d size;
-
-		/// Path to the directory to write the result files to.
-		///
-		/// Must exist.
-		///
-		/// Default: current directory.
-		std::string out_directory;
-
-		/// Amount of threads to use for generation.
-		///
-		/// Default: however many threads were detected on the system.
-		///
-		/// Not zero.
-		std::size_t jobs;
+	extern const std::chrono::milliseconds progressbar_max_refresh_rate;
 
 
-		/// Attempt to parse command-line arguments.
-		///
-		/// On success, returns `{parsed_opts, 0, whatever}`.
-		///
-		/// On error, returns `{_invalid_, exit code != 0, error message}`.
-		static nonstd::variant<options, option_err> parse(int argc, const char * const * argv);
-	};
+	void run_jobs(job_signature job, const std::string & job_name, const point_3d & size, std::size_t jobs, sf::Image * images, pb::multibar & progresses);
+	void run_jobs(job_signature job, const char * job_name, const point_3d & size, std::size_t jobs, sf::Image * images, pb::multibar & progresses);
 
-	bool operator==(const options & lhs, const options & rhs);
-	bool operator!=(const options & lhs, const options & rhs);
+	void colour_layers_job(point_3d size, sf::Image * where, std::size_t how_many, std::size_t thread_idx, pb::progressbar progress);
+	void save_layers_job(point_3d size, sf::Image * where, std::size_t how_many, std::size_t thread_idx, pb::progressbar progress);
+
+	std::string filename_to_save(const point_3d & size, std::size_t z);
 }
