@@ -48,11 +48,12 @@ int main(int argc, const char ** argv) {
 	std::cout << " Done!\n\n";
 
 
-	pb::multibar progresses;
-	progresses.println("A " + std::to_string(std::get<0>(opts.size)) + "x" + std::to_string(std::get<1>(opts.size)) + "x" +
-	                   std::to_string(std::get<2>(opts.size)) + " mandala on " + std::to_string(opts.jobs) + " thread" + (opts.jobs == 1 ? "" : "s") + ".");
+	big_voronoi::job_context ctx{opts.size, big_voronoi::generate_points(opts.size, 20)};
+	std::cout << "Configuration:\n" << ctx;
 
-	big_voronoi::run_jobs(big_voronoi::colour_layers_job, "generation", opts.size, opts.jobs, images.data(), progresses);
+	pb::multibar progresses;
+	big_voronoi::run_jobs(big_voronoi::colour_layers_job, "generation on " + std::to_string(opts.jobs) + " thread" + (opts.jobs == 1 ? "" : "s"), ctx, opts.jobs,
+	                      images.data(), progresses);
 
 	pb::progressbar progress(images.size());
 	progress.message("Saving into " + (opts.out_directory.empty() ? std::string{"./"} : opts.out_directory) + ": ");
