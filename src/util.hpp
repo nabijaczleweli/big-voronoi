@@ -23,10 +23,13 @@
 #pragma once
 
 
+#include <SFML/Graphics.hpp>
 #include <cstdint>
 #include <nonstd/optional.hpp>
 #include <string>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 
 namespace big_voronoi {
@@ -59,4 +62,8 @@ namespace big_voronoi {
 	std::string & capitalise_first(std::string & in_whom);
 	std::string capitalise_first(const std::string & in_whom);
 	std::string capitalise_first(std::string && in_whom);
+
+	// Parse a https://www.w3.org/TR/css3-color
+	nonstd::optional<sf::Color> parse_colour(std::string from);
+	nonstd::optional<std::pair<std::string, std::vector<std::string>>> parse_function_notation(std::string from);
 }

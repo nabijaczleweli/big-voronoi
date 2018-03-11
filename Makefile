@@ -23,22 +23,23 @@
 include configMakefile
 
 
-LDDLLS := $(OS_LD_LIBS) jpeg pb-cpp seed11
-LDAR := $(LNCXXAR) $(foreach l,pb-cpp seed11 SFML/lib,-L$(BLDDIR)$(l)) $(foreach dll,$(LDDLLS),-l$(dll))
+LDDLLS := $(OS_LD_LIBS) assets jpeg pb-cpp seed11
+LDAR := $(LNCXXAR) $(foreach l,$(OBJDIR)assets $(foreach l,pb-cpp seed11 SFML/lib,$(BLDDIR)$(l)),-L$(l)) $(foreach dll,$(LDDLLS),-l$(dll))
 INCAR := $(foreach l,$(foreach l,optional-lite pb-cpp seed11 SFML TCLAP,$(l)/include),-isystemext/$(l)) $(foreach l,variant-lite,-isystem$(BLDDIR)$(l)/include)
 VERAR := $(foreach l,BIG_VORONOI PB_CPP SEED11 TCLAP,-D$(l)_VERSION='$($(l)_VERSION)')
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
 HEADERS := $(sort $(wildcard src/*.hpp src/**/*.hpp src/**/**/*.hpp src/**/**/**/*.hpp))
 
-.PHONY : all clean pb-cpp seed11 sfml variant-lite exe
+.PHONY : all assets clean pb-cpp seed11 sfml variant-lite exe
 
 
-all : pb-cpp seed11 sfml variant-lite exe
+all : assets pb-cpp seed11 sfml variant-lite exe
 
 clean :
 	rm -rf $(OUTDIR)
 
-exe : pb-cpp sfml variant-lite $(OUTDIR)big-voronoi$(EXE)
+exe : assets pb-cpp sfml variant-lite $(OUTDIR)big-voronoi$(EXE)
+assets : $(BLDDIR)include/assets.hpp $(OBJDIR)assets/libassets$(ARCH)
 pb-cpp : $(BLDDIR)pb-cpp/libpb-cpp$(ARCH)
 seed11 : $(BLDDIR)seed11/libseed11$(ARCH)
 sfml : $(BLDDIR)SFML/lib/libsfml-graphics-s$(ARCH)
@@ -48,6 +49,21 @@ variant-lite : $(BLDDIR)variant-lite/include/nonstd/variant.hpp
 $(OUTDIR)big-voronoi$(EXE) : $(subst $(SRCDIR),$(OBJDIR),$(subst .cpp,$(OBJ),$(SOURCES)))
 	$(CXX) $(CXXAR) -o$@ $^ $(PIC) $(LDAR) $(shell grep '<SFML/' $(HEADERS) $(SOURCES) | sed -r 's:.*#include <SFML/(.*).hpp>:-lsfml-\1$(SFML_LINK_SUFF):' | tr '[:upper:]' '[:lower:]' | sort | uniq) $(LDAR)
 # '
+
+$(BLDDIR)include/assets.hpp : $(ASSETS)
+	@mkdir -p $(dir $@)
+	echo "#pragma once" > $@
+	echo "#include <string>" >> $@
+	echo "#include <unordered_map>" >> $@
+	echo "#include <SFML/Graphics.hpp>" >> $@
+	echo "" >> $@
+	echo "namespace assets {" >> $@
+	$(foreach l,$^,echo "	extern const unsigned char $(shell echo $(subst $(ASSETDIR),,$(l)) | sed 's/[^[:alnum:]]/_/g')[$(word 1,$(shell wc -c $(l)))];" >> $@;)
+	echo "" >> $@
+	$(foreach l,$^,echo "	extern const char $(shell echo $(subst $(ASSETDIR),,$(l)) | sed 's/[^[:alnum:]]/_/g')_s[$(shell expr $(word 1,$(shell wc -c $(l))) + 1)];" >> $@;)
+	echo "" >> $@
+	echo "	extern const std::unordered_map<std::string, sf::Color> css3_keywords;" >> $@
+	echo "}" >> $@
 
 $(BLDDIR)pb-cpp/libpb-cpp$(ARCH) : ext/pb-cpp/Makefile
 	@mkdir -p $(dir $@)

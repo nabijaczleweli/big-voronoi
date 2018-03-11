@@ -20,3 +20,6 @@
 	path = ext/seed11
 	url = https://github.com/milleniumbug/seed11
 	branch = v1.0.2
+[submodule "ext/css-color-parser-js"]
+	path = ext/css-color-parser-js
+	url = https://github.com/deanm/css-color-parser-js

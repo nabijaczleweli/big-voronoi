@@ -33,6 +33,7 @@ using namespace std::literals;
 
 
 const std::chrono::milliseconds big_voronoi::progressbar_max_refresh_rate = 100ms;
+const std::vector<big_voronoi::point_3d> big_voronoi::default_colours{};
 
 
 std::ostream & big_voronoi::operator<<(std::ostream & out, const job_context & job) {
