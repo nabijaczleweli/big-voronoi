@@ -30,6 +30,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <istream>
 
 
 namespace big_voronoi {
@@ -63,7 +64,16 @@ namespace big_voronoi {
 	std::string capitalise_first(const std::string & in_whom);
 	std::string capitalise_first(std::string && in_whom);
 
-	// Parse a https://www.w3.org/TR/css3-color
+	/// Consider |lhs - rhs| but doesn't fuck out on unsignedness
+	std::size_t abs_diff(std::size_t lhs, std::size_t rhs);
+
+	/// Read a list of colours from the specified stream with one colour per line
+	std::vector<sf::Color> read_colours(std::istream & from_whom);
+
+	/// 1 - C (but both are vectors and C is normalised) but alpha is untouched
+	sf::Color invert_colour(sf::Color which_one);
+
+	/// Parse a https://www.w3.org/TR/css3-color
 	nonstd::optional<sf::Color> parse_colour(std::string from);
 	nonstd::optional<std::pair<std::string, std::vector<std::string>>> parse_function_notation(std::string from);
 }

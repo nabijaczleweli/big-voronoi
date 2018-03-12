@@ -21,6 +21,7 @@
 
 
 #include "ops.hpp"
+#include "assets.hpp"
 #include <algorithm>
 #include <iomanip>
 #include <random>
@@ -29,11 +30,11 @@
 #include <thread>
 
 
-using namespace std::literals;
-
-
-const std::chrono::milliseconds big_voronoi::progressbar_max_refresh_rate = 100ms;
-const std::vector<big_voronoi::point_3d> big_voronoi::default_colours{};
+const std::chrono::milliseconds big_voronoi::progressbar_max_refresh_rate{100};
+const std::vector<sf::Color> big_voronoi::default_colours                 = []() {
+  std::istringstream ss{assets::default_colours_s};
+  return read_colours(ss);
+}();
 
 
 std::ostream & big_voronoi::operator<<(std::ostream & out, const job_context & job) {
@@ -42,6 +43,12 @@ std::ostream & big_voronoi::operator<<(std::ostream & out, const job_context & j
 	out << "Point set:\n";
 	for(auto && p : job.points)
 		out << "\t[" << std::get<0>(p) << ", " << std::get<1>(p) << ", " << std::get<2>(p) << "]\n";
+
+	out << "Colours:\n" << std::hex << std::setfill('0');
+	for(auto && c : job.colours)
+		out << "\t#" << std::setw(2) << static_cast<unsigned int>(c.r) << std::setw(2) << static_cast<unsigned int>(c.g) << std::setw(2)
+		    << static_cast<unsigned int>(c.b) << '\n';
+	out << std::dec;
 
 	out << '\n';
 	return out;
@@ -55,8 +62,15 @@ std::vector<big_voronoi::point_3d> big_voronoi::generate_points(point_3d size, s
 
 	std::vector<point_3d> out{how_many};
 	for(auto && p : out)
-		p = {x_dist(rng), y_dist(rng), z_dist(rng)};
+		p = std::make_tuple(x_dist(rng), y_dist(rng), z_dist(rng));
 	return out;
+}
+
+void big_voronoi::highlight_points(const job_context & ctx, std::vector<sf::Image> & images) {
+	for(std::size_t i = 0; i < ctx.points.size(); ++i) {
+		auto && p = ctx.points[i];
+		images[std::get<2>(p)].setPixel(std::get<0>(p), std::get<1>(p), invert_colour(ctx.colours[i]));
+	}
 }
 
 void big_voronoi::run_jobs(job_signature job, const std::string & job_name, const job_context & ctx, std::size_t jobs, sf::Image * images,
@@ -69,7 +83,7 @@ void big_voronoi::run_jobs(job_signature job, const std::string & job_name, cons
 
 	for(std::size_t i = 0; i < jobs; ++i) {
 		const auto layer_count = per_layer + (i + 1 == jobs ? additional_last_layer : 0);
-		std::thread(job, ctx, &images[i * per_layer], layer_count, i, progresses.create_bar(layer_count)).detach();
+		std::thread(job, ctx, &images[i * per_layer], layer_count, i * per_layer, i, progresses.create_bar(layer_count)).detach();
 	}
 
 	progresses.println();
@@ -81,17 +95,19 @@ void big_voronoi::run_jobs(job_signature job, const char * job_name, const job_c
 }
 
 
-void big_voronoi::colour_layers_job(job_context ctx, sf::Image * where, std::size_t how_many, std::size_t thread_idx, pb::progressbar progress) {
+void big_voronoi::colour_layers_job(job_context ctx, sf::Image * where, std::size_t how_many, std::size_t z0, std::size_t thread_idx,
+                                    pb::progressbar progress) {
 	progress.message("Thread #" + std::to_string(thread_idx + 1) + " [layers] ");
 
 	for(std::size_t z = 0; z < how_many; ++z) {
 		for(auto y = 0u; y < std::get<1>(ctx.size); ++y)
 			for(auto x = 0u; x < std::get<0>(ctx.size); ++x) {
-				const auto & point = ctx.points[(x * y * z) % ctx.points.size()];
-				where[z].setPixel(x, y,
-				                  sf::Color{static_cast<std::uint8_t>((static_cast<unsigned long>(std::get<0>(point)) - x) % 256),
-				                            static_cast<std::uint8_t>((static_cast<unsigned long>(std::get<1>(point)) - y) % 256),
-				                            static_cast<std::uint8_t>((static_cast<unsigned long>(std::get<2>(point)) - z) % 256)});
+				point_3d this_point{x, y, z + z0};
+				where[z].setPixel(
+				    x, y,
+				    ctx.colours[std::max_element(std::begin(ctx.points), std::end(ctx.points),
+				                                 [&](const auto & lhs, const auto & rhs) { return distance(lhs, this_point) < distance(rhs, this_point); }) -
+				                std::begin(ctx.points)]);
 			}
 
 		++progress;
@@ -104,4 +120,12 @@ std::string big_voronoi::filename_to_save(const point_3d & size, std::size_t z) 
 	std::ostringstream out;
 	out << "voronoi-" << std::get<0>(size) << 'x' << std::get<1>(size) << 'x' << std::get<2>(size) << '-' << std::setfill('0') << std::setw(5) << z << ".png";
 	return out.str();
+}
+
+double big_voronoi::distance(const point_3d & from, const point_3d & to) {
+	const auto dx = abs_diff(std::get<0>(from), std::get<0>(to));
+	const auto dy = abs_diff(std::get<1>(from), std::get<1>(to));
+	const auto dz = abs_diff(std::get<2>(from), std::get<2>(to));
+
+	return std::sqrt(dx * dx + dy * dy + dz * dz);
 }

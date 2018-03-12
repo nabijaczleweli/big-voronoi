@@ -21,6 +21,7 @@
 
 
 #include "util.hpp"
+#include "assets.hpp"
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -85,6 +86,29 @@ std::string big_voronoi::capitalise_first(std::string && in_whom) {
 	std::string out = std::move(in_whom);
 	capitalise_first(out);
 	return out;
+}
+
+std::size_t big_voronoi::abs_diff(std::size_t lhs, std::size_t rhs) {
+	if(lhs < rhs)
+		return rhs - lhs;
+	else
+		return lhs - rhs;
+}
+
+std::vector<sf::Color> big_voronoi::read_colours(std::istream & from_whom) {
+	std::vector<sf::Color> out;
+
+	std::string line;
+	while(std::getline(from_whom, line))
+		if(auto col = parse_colour(line))
+			out.emplace_back(std::move(*col));
+
+	return out;
+}
+
+sf::Color big_voronoi::invert_colour(sf::Color which_one) {
+	return {static_cast<std::uint8_t>(0xFF - which_one.r), static_cast<std::uint8_t>(0xFF - which_one.g), static_cast<std::uint8_t>(0xFF - which_one.b),
+	        which_one.a};
 }
 
 // Based on https://github.com/deanm/css-color-parser-js
