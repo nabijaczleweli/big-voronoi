@@ -3,6 +3,8 @@
 !ext/**
 !src
 !src/**
+!assets
+!assets/**
 !.git*
 !*.yml
 !*Makefile

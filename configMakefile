@@ -69,3 +69,4 @@ OUTDIR := out/
 BLDDIR := out/build/
 OBJDIR := $(BLDDIR)obj/
 SRCDIR := src/
+ASSETDIR := assets/
