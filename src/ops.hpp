@@ -25,8 +25,8 @@
 
 #include "util.hpp"
 #include <SFML/Graphics.hpp>
-#include <ostream>
 #include <nonstd/variant.hpp>
+#include <ostream>
 #include <pb-cpp/multibar.hpp>
 
 
@@ -45,6 +45,8 @@ namespace big_voronoi {
 	extern const std::chrono::milliseconds progressbar_max_refresh_rate;
 	extern const std::vector<sf::Color> default_colours;
 
+
+	std::vector<sf::Color> generate_colours(std::size_t how_many);
 
 	std::vector<point_3d> generate_points(point_3d size, std::size_t how_many);
 	void highlight_points(const job_context & ctx, std::vector<sf::Image> & images);

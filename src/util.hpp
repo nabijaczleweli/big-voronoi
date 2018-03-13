@@ -25,12 +25,12 @@
 
 #include <SFML/Graphics.hpp>
 #include <cstdint>
+#include <istream>
 #include <nonstd/optional.hpp>
 #include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
-#include <istream>
 
 
 namespace big_voronoi {
@@ -46,6 +46,10 @@ namespace big_voronoi {
 	/// Check if the file specified by the path exists and is a directory.
 	bool directory_exists(const char * path);
 	bool directory_exists(const std::string & path);
+
+	/// Check if the file specified by the path exists and is a regular file.
+	bool file_exists(const char * path);
+	bool file_exists(const std::string & path);
 
 	/// Get the amount of logical processors.
 	std::size_t num_cpus();

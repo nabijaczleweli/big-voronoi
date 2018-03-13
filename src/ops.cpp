@@ -31,9 +31,9 @@
 
 
 const std::chrono::milliseconds big_voronoi::progressbar_max_refresh_rate{100};
-const std::vector<sf::Color> big_voronoi::default_colours                 = []() {
-  std::istringstream ss{assets::default_colours_s};
-  return read_colours(ss);
+const std::vector<sf::Color> big_voronoi::default_colours = []() {
+	std::istringstream ss{assets::default_colours_s};
+	return read_colours(ss);
 }();
 
 
@@ -51,6 +51,16 @@ std::ostream & big_voronoi::operator<<(std::ostream & out, const job_context & j
 	out << std::dec;
 
 	out << '\n';
+	return out;
+}
+
+std::vector<sf::Color> big_voronoi::generate_colours(std::size_t how_many) {
+	auto rng = seed11::make_seeded<std::mt19937>();
+	std::uniform_int_distribution<unsigned int> rgb_dist{0, 255};  // Can't be std::uint8_t because C++ is good
+
+	std::vector<sf::Color> out{how_many};
+	for(auto && p : out)
+		p = {static_cast<std::uint8_t>(rgb_dist(rng)), static_cast<std::uint8_t>(rgb_dist(rng)), static_cast<std::uint8_t>(rgb_dist(rng))};
 	return out;
 }
 

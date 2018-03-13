@@ -26,6 +26,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <vector>
 
@@ -38,6 +39,27 @@ int main(int argc, const char ** argv) {
 	}
 	const auto opts = std::move(nonstd::get<big_voronoi::options>(opts_r));
 
+	std::vector<sf::Color> colours;
+	if(opts.colours)
+		if(const auto colour_count = nonstd::get_if<std::size_t>(&*opts.colours)) {
+			colours.insert(colours.end(), std::begin(big_voronoi::default_colours),
+			               std::begin(big_voronoi::default_colours) + std::min(big_voronoi::default_colours.size(), *colour_count));
+			if(colours.size() < *colour_count) {
+				const auto new_colours = big_voronoi::generate_colours(*colour_count - colours.size());
+				colours.insert(colours.end(), std::begin(new_colours), std::end(new_colours));
+			}
+		} else {
+			std::ifstream colours_in{nonstd::get<std::string>(*opts.colours)};
+			colours = big_voronoi::read_colours(colours_in);
+		}
+	else
+		colours = big_voronoi::default_colours;
+
+	if(colours.empty()) {
+		std::cerr << "No colours, can't generate voronoi.\n";
+		return 3;
+	}
+
 	std::cout << "Allocating " << big_voronoi::separated_number(std::get<0>(opts.size) * std::get<1>(opts.size) * std::get<2>(opts.size) * 4 / 1024)
 	          << "KiB of images..." << std::flush;
 
@@ -48,7 +70,7 @@ int main(int argc, const char ** argv) {
 	std::cout << " Done!\n\n";
 
 
-	big_voronoi::job_context ctx{opts.size, big_voronoi::generate_points(opts.size, big_voronoi::default_colours.size()), big_voronoi::default_colours};
+	big_voronoi::job_context ctx{opts.size, big_voronoi::generate_points(opts.size, colours.size()), colours};
 	std::cout << "Configuration:\n" << ctx;
 
 	pb::multibar progresses;

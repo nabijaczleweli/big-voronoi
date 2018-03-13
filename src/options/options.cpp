@@ -21,9 +21,11 @@
 
 
 #include "options.hpp"
+#include "../ops.hpp"
 #include "existing_dir_constraint.hpp"
 #include "output_size_constraint.hpp"
 #include "positive_constraint.hpp"
+#include "positive_or_existing_file_constraint.hpp"
 #include <string>
 #include <tclap/CmdLine.h>
 #include <tclap/SwitchArg.h>
@@ -39,12 +41,16 @@ nonstd::variant<big_voronoi::options, big_voronoi::option_err> big_voronoi::opti
 		big_voronoi::output_size_constraint size_constraint("DDDxDDDxDDD; D=digit");
 		big_voronoi::existing_dir_constraint out_image_constraint("existing directory");
 		big_voronoi::positive_constraint jobs_constraint("positive integer");
+		big_voronoi::positive_or_existing_file_constraint colours_constraint("positive integer or path to existing file");
 
 		TCLAP::CmdLine command_line("big-voronoi -- consider: voronoi diagram, but in 3D and in parallel", ' ', BIG_VORONOI_VERSION);
 		TCLAP::ValueArg<std::string> size("s", "size", "Output voronoi resolution. Default: 900x900x900", false, "900x900x900", &size_constraint, command_line);
 		TCLAP::ValueArg<std::string> out_dir("o", "out_image", "Directory to write the voronoi diagram to. Default: current directory", false, "",
 		                                     &out_image_constraint, command_line);
 		TCLAP::ValueArg<std::string> jobs("j", "jobs", "Amount of threads to utilise. Default: " + jobs_s, false, jobs_s, &jobs_constraint, command_line);
+		TCLAP::ValueArg<std::string> colours("c", "colours",
+		                                     "Amount of colours or path to list of CSS3 colours (one per line). Default: " + std::to_string(default_colours.size()),
+		                                     false, "", &colours_constraint, command_line);
 
 		command_line.setExceptionHandling(false);
 		command_line.parse(argc, argv);
@@ -60,6 +66,14 @@ nonstd::variant<big_voronoi::options, big_voronoi::option_err> big_voronoi::opti
 		}
 
 		ret.jobs = std::stoull(jobs);
+
+		if(!colours.getValue().empty()) {
+			const auto colours_count = std::atoll(colours.getValue().c_str());
+			if(colours_count > 0)
+				ret.colours = {static_cast<std::size_t>(colours_count)};
+			else
+				ret.colours = {colours.getValue()};
+		}
 	} catch(const TCLAP::ArgException & e) {
 		auto arg_id = e.argId();
 		if(arg_id == " ")

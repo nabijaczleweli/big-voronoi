@@ -24,6 +24,7 @@
 
 
 #include "../util.hpp"
+#include <nonstd/optional.hpp>
 #include <nonstd/variant.hpp>
 #include <utility>
 
@@ -49,6 +50,15 @@ namespace big_voronoi {
 		///
 		/// Not zero.
 		std::size_t jobs;
+
+		/// The colours to use.
+		///
+		/// If `nullopt` – use default set.
+		///
+		/// If `std::size_t` – amount to generate (first use default ones, then random gen).
+		///
+		/// If `std::string` – file with CSS3 colours, one per line.
+		nonstd::optional<nonstd::variant<std::size_t, std::string>> colours;
 
 
 		/// Attempt to parse command-line arguments.

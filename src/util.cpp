@@ -53,14 +53,18 @@ nonstd::optional<big_voronoi::point_3d> big_voronoi::parse_size_option(const std
 	return parse_size_option(opt.c_str());
 }
 
-bool big_voronoi::directory_exists(const char * path) {
-	struct stat info;
-	return stat(path, &info) == 0 && info.st_mode & S_IFDIR;
-}
+#define FS_EXISTS(whom, S_what)                             \
+	bool big_voronoi::whom##_exists(const char * path) {      \
+		struct stat info;                                       \
+		return stat(path, &info) == 0 && info.st_mode & S_what; \
+	}                                                         \
+                                                            \
+	bool big_voronoi::whom##_exists(const std::string & path) { return whom##_exists(path.c_str()); }
 
-bool big_voronoi::directory_exists(const std::string & path) {
-	return directory_exists(path.c_str());
-}
+FS_EXISTS(directory, S_IFDIR)
+FS_EXISTS(file, S_IFREG)
+
+#undef FS_EXISTS
 
 std::string big_voronoi::separated_number(std::size_t num, char separator) {
 	auto ss = std::to_string(num);
