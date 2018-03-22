@@ -33,7 +33,7 @@
 const std::chrono::milliseconds big_voronoi::progressbar_max_refresh_rate{100};
 const std::vector<sf::Color> big_voronoi::default_colours = []() {
 	std::istringstream ss{assets::default_colours_s};
-	return read_colours(ss);
+	return read_data(parse_colour, ss);
 }();
 
 

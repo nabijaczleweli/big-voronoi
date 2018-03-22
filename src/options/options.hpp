@@ -60,6 +60,16 @@ namespace big_voronoi {
 		/// If `std::string` – file with CSS3 colours, one per line.
 		nonstd::optional<nonstd::variant<std::size_t, std::string>> colours;
 
+		/// The colours to use.
+		///
+		/// If `nullopt` – generate `colours.size()` points.
+		///
+		/// If `std::size_t` – generate `min(points, colours.size())` points.
+		///
+		/// If `std::string` – file with points in `util::parse_point()` format, one per line;
+		///                    only up to `min(points.size(), colours.size())` will be used.
+		nonstd::optional<nonstd::variant<std::size_t, std::string>> points;
+
 
 		/// Attempt to parse command-line arguments.
 		///

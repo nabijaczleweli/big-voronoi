@@ -39,6 +39,7 @@ int main(int argc, const char ** argv) {
 	}
 	const auto opts = std::move(nonstd::get<big_voronoi::options>(opts_r));
 
+
 	std::vector<sf::Color> colours;
 	if(opts.colours)
 		if(const auto colour_count = nonstd::get_if<std::size_t>(&*opts.colours)) {
@@ -50,7 +51,7 @@ int main(int argc, const char ** argv) {
 			}
 		} else {
 			std::ifstream colours_in{nonstd::get<std::string>(*opts.colours)};
-			colours = big_voronoi::read_colours(colours_in);
+			colours = big_voronoi::read_data(big_voronoi::parse_colour, colours_in);
 		}
 	else
 		colours = big_voronoi::default_colours;
@@ -59,6 +60,26 @@ int main(int argc, const char ** argv) {
 		std::cerr << "No colours, can't generate voronoi.\n";
 		return 3;
 	}
+
+	std::vector<big_voronoi::point_3d> points;
+	if(opts.points)
+		if(const auto point_count = nonstd::get_if<std::size_t>(&*opts.points))
+			points = big_voronoi::generate_points(opts.size, std::min(*point_count, colours.size()));
+		else {
+			std::ifstream points_in{nonstd::get<std::string>(*opts.points)};
+			points = big_voronoi::read_data(big_voronoi::parse_point, points_in);
+		}
+	else
+		points = big_voronoi::generate_points(opts.size, colours.size());
+
+	if(points.empty()) {
+		std::cerr << "No points, can't generate voronoi.\n";
+		return 4;
+	}
+
+	points.resize(std::min(points.size(), colours.size()));
+	colours.resize(points.size());
+
 
 	std::cout << "Allocating " << big_voronoi::separated_number(std::get<0>(opts.size) * std::get<1>(opts.size) * std::get<2>(opts.size) * 4 / 1024)
 	          << "KiB of images..." << std::flush;
@@ -70,7 +91,7 @@ int main(int argc, const char ** argv) {
 	std::cout << " Done!\n\n";
 
 
-	big_voronoi::job_context ctx{opts.size, big_voronoi::generate_points(opts.size, colours.size()), colours};
+	big_voronoi::job_context ctx{opts.size, std::move(points), std::move(colours)};
 	std::cout << "Configuration:\n" << ctx;
 
 	pb::multibar progresses;

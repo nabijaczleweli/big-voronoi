@@ -71,8 +71,12 @@ namespace big_voronoi {
 	/// Consider |lhs - rhs| but doesn't fuck out on unsignedness
 	std::size_t abs_diff(std::size_t lhs, std::size_t rhs);
 
-	/// Read a list of colours from the specified stream with one colour per line
-	std::vector<sf::Color> read_colours(std::istream & from_whom);
+	/// Read a list of `T`s from the specified stream using the specified parseing function with one `T` per line
+	template <class T>
+	std::vector<T> read_data(nonstd::optional<T> (*parse)(std::string), std::istream & from_whom);
+
+	/// Parse a 3D point formatted as `"D+^D+D+^D+D+"`
+	nonstd::optional<point_3d> parse_point(std::string from);
 
 	/// 1 - C (but both are vectors and C is normalised) but alpha is untouched
 	sf::Color invert_colour(sf::Color which_one);
@@ -81,3 +85,6 @@ namespace big_voronoi {
 	nonstd::optional<sf::Color> parse_colour(std::string from);
 	nonstd::optional<std::pair<std::string, std::vector<std::string>>> parse_function_notation(std::string from);
 }
+
+
+#include "impl/util.inc"
