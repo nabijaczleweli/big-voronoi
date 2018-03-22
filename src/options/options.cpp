@@ -64,7 +64,7 @@ nonstd::variant<big_voronoi::options, big_voronoi::option_err> big_voronoi::opti
 		else {
 			ret.out_directory = out_dir;
 			if(ret.out_directory.back() != '/' && ret.out_directory.back() != '\\')
-				ret.out_directory.push_back('\\');
+				ret.out_directory.push_back('/');
 		}
 
 		ret.jobs = std::stoull(jobs);
