@@ -33,7 +33,7 @@
 
 
 static std::regex parse_size_regex{"([[:digit:]]+)x([[:digit:]]+)x([[:digit:]]+)"};
-static std::regex parse_point_regex{"([[:digit:]]+)[^[:digit:]]+([[:digit:]]+)[^[:digit:]]+([[:digit:]]+)"};
+static std::regex parse_point_regex{"[^[:digit:]]*([[:digit:]]+)[^[:digit:]]+([[:digit:]]+)[^[:digit:]]+([[:digit:]]+)[^[:digit:]]*"};
 
 
 static std::uint8_t parse_css3_int(const std::string & str);
@@ -102,7 +102,7 @@ std::size_t big_voronoi::abs_diff(std::size_t lhs, std::size_t rhs) {
 
 nonstd::optional<big_voronoi::point_3d> big_voronoi::parse_point(std::string from) {
 	std::smatch match;
-	if(std::regex_match(from, match, parse_size_regex))
+	if(std::regex_match(from, match, parse_point_regex))
 		return std::make_tuple(static_cast<std::size_t>(std::stoull(match[1].str())), static_cast<std::size_t>(std::stoull(match[2].str())),
 		                       static_cast<std::size_t>(std::stoull(match[3].str())));
 	else
