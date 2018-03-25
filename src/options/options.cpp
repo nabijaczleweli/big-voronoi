@@ -45,7 +45,7 @@ nonstd::variant<big_voronoi::options, big_voronoi::option_err> big_voronoi::opti
 
 		TCLAP::CmdLine command_line("big-voronoi -- consider: voronoi diagram, but in 3D and in parallel", ' ', BIG_VORONOI_VERSION);
 		TCLAP::ValueArg<std::string> size("s", "size", "Output voronoi resolution. Default: 900x900x900", false, "900x900x900", &size_constraint, command_line);
-		TCLAP::ValueArg<std::string> out_dir("o", "out_image", "Directory to write the voronoi diagram to. Default: current directory", false, "",
+		TCLAP::ValueArg<std::string> out_dir("o", "out-directory", "Directory to write the voronoi diagram to. Default: current directory", false, "",
 		                                     &out_image_constraint, command_line);
 		TCLAP::ValueArg<std::string> jobs("j", "jobs", "Amount of threads to utilise. Default: " + jobs_s, false, jobs_s, &jobs_constraint, command_line);
 		TCLAP::ValueArg<std::string> colours("c", "colours",
