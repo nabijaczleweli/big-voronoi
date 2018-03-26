@@ -137,6 +137,8 @@ before_install:
     fi
 
 install:
+  - if [ "$LANGUAGE" == "Ruby" ]; then gem install ronn; fi
+  -
   - mkdir -p /tmp/tools
   - pushd /tmp/tools
   - if [[ "$LANGUAGE" == "C++" ]] && [[ ! -f "cmake-$CMAKE_VERSION_FULL-Linux-x86_64.sh" ]]; then
@@ -160,6 +162,7 @@ install:
 
 script:
   - if [[ "$LANGUAGE" == "C++" ]]; then
+      ADDITIONAL_INCLUDE_DIR="$LIB_INSTALLDIR/include" ADDITIONAL_LINK_DIR="$LIB_INSTALLDIR/lib" make -j$(nproc) assets &&
       ADDITIONAL_INCLUDE_DIR="$LIB_INSTALLDIR/include" ADDITIONAL_LINK_DIR="$LIB_INSTALLDIR/lib" make -j$(nproc);
     fi
   -
