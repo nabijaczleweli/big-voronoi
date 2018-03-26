@@ -28,18 +28,28 @@
 #include <tclap/Constraint.h>
 
 
+#define DECLARE_CONSTRAINT(constraint_name)                                    \
+	class constraint_name##_constraint : public TCLAP::Constraint<std::string> { \
+	private:                                                                     \
+		std::string arg_name;                                                      \
+                                                                               \
+	public:                                                                      \
+		virtual std::string description() const override;                          \
+		virtual std::string shortID() const override;                              \
+		virtual bool check(const std::string & value) const override;              \
+                                                                               \
+		constraint_name##_constraint(std::string argname);                         \
+                                                                               \
+		virtual ~constraint_name##_constraint() = default;                         \
+	}
+
+
 namespace big_voronoi {
-	class output_size_constraint : public TCLAP::Constraint<std::string> {
-	private:
-		std::string arg_name;
-
-	public:
-		virtual std::string description() const override;
-		virtual std::string shortID() const override;
-		virtual bool check(const std::string & value) const override;
-
-		output_size_constraint(std::string argname);
-
-		virtual ~output_size_constraint() = default;
-	};
+	DECLARE_CONSTRAINT(positive);
+	DECLARE_CONSTRAINT(output_size);
+	DECLARE_CONSTRAINT(existing_dir);
+	DECLARE_CONSTRAINT(positive_or_existing_file);
 }
+
+
+#undef DECLARE_CONSTRAINT

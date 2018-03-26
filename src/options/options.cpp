@@ -22,10 +22,7 @@
 
 #include "options.hpp"
 #include "../ops.hpp"
-#include "existing_dir_constraint.hpp"
-#include "output_size_constraint.hpp"
-#include "positive_constraint.hpp"
-#include "positive_or_existing_file_constraint.hpp"
+#include "constraints.hpp"
 #include <string>
 #include <tclap/CmdLine.h>
 #include <tclap/SwitchArg.h>
@@ -52,7 +49,7 @@ nonstd::variant<big_voronoi::options, big_voronoi::option_err> big_voronoi::opti
 		                                     "Amount of colours or path to list of CSS3 colours (one per line). Default: " + std::to_string(default_colours.size()),
 		                                     false, "", &colours_points_constraint, command_line);
 		TCLAP::ValueArg<std::string> points("p", "points", "Amount of points or path to list of points (one per line). Default: value of --colours", false, "",
-		                                     &colours_points_constraint, command_line);
+		                                    &colours_points_constraint, command_line);
 
 		command_line.setExceptionHandling(false);
 		command_line.parse(argc, argv);
