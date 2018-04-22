@@ -1,0 +1,216 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "BIG\-VORONOI" "1" "April 2018" "nabijaczleweli" ""
+.
+.SH "NAME"
+\fBbig\-voronoi\fR \- Consider: voronoi diagram, but in 3D and in parallel
+.
+.SH "SYNOPSIS"
+\fBbig\-voronoi\fR \fIOPTIONS\fR
+.
+.SH "DESCRIPTION"
+Consider: voronoi diagram, but in 3D and in parallel\.
+.
+.P
+A voronoi diagram is an α\-dimensional space, wherein each point takes on the colour of the control point closest thereto\.
+.
+.P
+This program can generate 3D voronoi diagrams quickly, and changing the distance function within it is easy\.
+.
+.SH "OPTIONS"
+\-s \-\-size \fIDIAGRAM_SIZE\fR
+.
+.IP "" 4
+.
+.nf
+
+Specify the size of the output diagram\.
+
+DIAGRAM_SIZE is in DIAGRAM SIZE FORMAT\.
+
+Default: 900x900x900\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+\-c \-\-colours \fICOLOURS_FILE|COLOURS_COUNT\fR
+.
+.IP "" 4
+.
+.nf
+
+Specify the amount of control points\' colours or the file therecontaining\.
+
+If the value is a positive integer, then COLOURS_COUNT is that integer
+and COLOURS_COUNT colours are generated\.
+Note: the first 20 colours are constant (see assets/default_colours file
+in the repo), the ones over 20 will be randomly generated\.
+
+Otherwise, COLOURS_FILE is parsed according to COLOURS FILE FORMAT,
+and COLOURS_COUNT is the amount of successfully parsed colours thereinfrom\.
+
+Default: 20\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+\-p \-\-points \fIPOINTS_FILE|POINTS_COUNT\fR
+.
+.IP "" 4
+.
+.nf
+
+Specify the amount of control points or the file therecontaining\.
+
+If the value is a positive integer, then POINTS_COUNT is that integer
+and POINTS_COUNT points are randomly generated within DIAGRAM_SIZE\.
+
+Otherwise, POINTS_FILE is parsed according to POINTS FILE FORMAT,
+and POINTS_COUNT is the amount of successfully parsed points thereinfrom\.
+
+Default: COLOURS_COUNT\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+\-j \-\-jobs \fIJOB_COUNT\fR
+.
+.IP "" 4
+.
+.nf
+
+Specify the amount of threads to use for diagram generation\.
+
+JOB_COUNT is a positive integer\.
+
+Default: autodetected amount of logical CPUs\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+\-o \-\-out\-directory \fIOUTDIR\fR
+.
+.IP "" 4
+.
+.nf
+
+Specify the directory to which the diagram will be saved\.
+
+OUTDIR must exist and be a directory\.
+
+Default: current working directory\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+\-\-version
+.
+.IP "" 4
+.
+.nf
+
+Print the version of the big\-voronoi binary\.
+.
+.fi
+.
+.IP "" 0
+.
+.P
+\-h \-\-help
+.
+.IP "" 4
+.
+.nf
+
+Print short usage information\.
+.
+.fi
+.
+.IP "" 0
+.
+.SH "DIAGRAM SIZE FORMAT"
+A string is a valid diagram size if it matches the following regex:
+.
+.IP "" 4
+.
+.nf
+
+([[:digit:]]+)x([[:digit:]]+)x([[:digit:]]+)
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Or, put more succintly:
+.
+.IP "" 4
+.
+.nf
+
+D+xD+xD+
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Wherein \fBD\fR is a digit character, \fB+\fR means "1 or more times" and \fBx\fR is a literal \fB"x"\fR\.
+.
+.SH "COLOURS FILE FORMAT"
+A line\-based format, wherein a line contains a colour if it is a valid CSS3 colour\.
+.
+.P
+If a line does not contain a CSS3 colour according, it is ignored\.
+.
+.SH "POINTS FILE FORMAT"
+A line\-based format, wherein a line contains a point if it matches this regex:
+.
+.IP "" 4
+.
+.nf
+
+[^[:digit:]]*([[:digit:]]+)[^[:digit:]]+([[:digit:]]+)[^[:digit:]]+([[:digit:]]+)[^[:digit:]]*
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Or, put more succintly:
+.
+.IP "" 4
+.
+.nf
+
+N*D+N+D+N+D+N*
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Wherein \fBN\fR is a non\-digit character, \fBD\fR is a digit character, \fB*\fR means "0 or more times" and \fB+\fR means "1 or more times"\.
+.
+.P
+If a line does not contain a point according to that specification, it is ignored\.
+.
+.SH "AUTHOR"
+Written by nabijaczleweli <\fInabijaczleweli@gmail\.com\fR>
+.
+.SH "REPORTING BUGS"
+<\fIhttps://github\.com/nabijaczleweli/big\-voronoi/issues\fR>
+.
+.SH "SEE ALSO"
+<\fIhttps://github\.com/nabijaczleweli/big\-voronoi\fR>
